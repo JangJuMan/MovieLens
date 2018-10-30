@@ -153,10 +153,37 @@ public class Recommender
 	private int predictPair(HashSet<Integer> anItemset, Integer j) {
 		/* TODO: implement this method */
 		
+		// only consider the case whose itemSet size is >=1 since this method deals with {movie 1} -> {movie 2} rules
+		if(anItemset.size() < 1)
+			return 0;
+		
 		// Compute support, confidence, or lift. Based on their threshold, decide how to predict. Return 1 when metrics are satisfied by threshold, otherwise 0.
+		// In the current implementation, we considered only confidence.
+		
+		//for (Set<Integer> p : Sets.combinations(anItemset, 1)) {
+		for (Integer p : anItemset) {
+			
+			// the number baskets for I
+			Integer numBasketsForI = freqItemsetsWithSize1.get(p) ;
+			
+			if (numBasketsForI == null)
+				continue ;
+			
+			// the number of baskets for I U {j}
+			FrequentItemsetSize2 item = new FrequentItemsetSize2(p.intValue(), numBasketsForI.intValue());
+			
+			// All itemsets in freqItemsetsWithSize3 satisfy minimum support when the are computed.
+			Integer numBasketsForIUnionj = freqItemsetsWithSize2.get(item) ; 
+	
+			if (numBasketsForIUnionj == null)
+				continue ;
+			
+		}
+
 		return 0 ;
 	}
 
+	
 	private int predictTriple(HashSet<Integer> anItemset, Integer j) { // association rule anItemset (I) -> j
 		
 		// only consider the case whose itemset size is >=2 since this method deals with {movie 1, movie 2} -> {movie 3} rules
@@ -243,10 +270,17 @@ class FrequentItemsetSize2 implements Comparable
 @SuppressWarnings("rawtypes")
 class FrequentItemsetSize3 implements Comparable 
 {
-	int [] items ;
+	int [] items = new int[3];
 
 	FrequentItemsetSize3(Set<Integer> s) {
 		/* TODO: implement this method */
+		Integer [] elem = s.toArray(new Integer[3]);
+		
+		this.items[0] = elem[0];
+		this.items[1] = elem[1];
+		this.items[2] = elem[2];
+		
+		Arrays.sort(this.items);
 		
 		// values in s must be sorted and save into items array
 	}
@@ -254,6 +288,16 @@ class FrequentItemsetSize3 implements Comparable
 	@Override
 	public int compareTo(Object obj) {  // this method is used for sorting when using TreeMap
 		/* TODO: implement this method */
-		return 0 ;
+		FrequentItemsetSize3 p = (FrequentItemsetSize3) obj ;
+		
+		for(int i=0; i<3; i++) {
+			if(this.items[i] < p.items[i])
+				return -1;
+			if(this.items[i] > p.items[i])
+				return 1;
+		}
+		
+		return 0;
+		
 	}
 }
